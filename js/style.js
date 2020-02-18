@@ -1,13 +1,40 @@
 
-
-
 let level = 9;
 let livesCount = 3;
 let hintsCount = 2;
 let currentCursor = 0;
 let result = null;
 
+function showLevels() {
+    let maxLevel = 121;
+
+    let levelsList = '<div class="row levels-list">';
+    for (let l = 1; l <= maxLevel; l++) {
+        levelsList += '<div class="col-2 col-sm-2"><span>'+ l +'</span></div>';
+    }
+    levelsList += '</div>';
+
+    $('.levels').empty();
+    $('.levels').append(levelsList);
+
+    $('.levels .levels-list div').click( function(event) {
+        level = $(this).find('span').text();
+        $('.levels').empty();
+
+        startGame()
+    });
+}
+
+
+
+
+
 $( document ).ready(function() {
+    // append levels
+    showLevels();
+});
+
+function startGame() {
     updateLiveInfo();
     updateHintInfo();
 
@@ -39,10 +66,10 @@ $( document ).ready(function() {
 
     // setInterval(
     setTimeout(
-    function() {
-        $('.guess-cover').addClass('show-cover');
-        $('.guess-cover').removeClass('hide-cover');
-    }, 5000);
+        function() {
+            $('.guess-cover').addClass('show-cover');
+            $('.guess-cover').removeClass('hide-cover');
+        }, 5000);
 
 
     /////////////////////////////////////
@@ -62,7 +89,8 @@ $( document ).ready(function() {
 
         checkLive()
     });
-});
+}
+
 
 $('#hint').click( function(event) {
     if (hintsCount < 1) {

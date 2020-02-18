@@ -2,12 +2,22 @@
 
 
 let level = 9;
+let livesCount = 3;
+let hintsCount = 2;
+let currentCursor = 0;
+let result = null;
 
 $( document ).ready(function() {
+    updateLiveInfo();
+    updateHintInfo();
+
     let matrixSize = Math.round(Math.sqrt(level) + 0.5);
 
-    let result = getRandomList(level, (matrixSize * matrixSize));
-    console.log(matrixSize, result)
+    // block-size
+    let blockSize = Math.round(12 / matrixSize - 0.5);
+
+
+    result = getRandomList(level, (matrixSize * matrixSize));
 
     let resultHtml = '<div class="row">';
     for (let i in result['elementsList']) {
@@ -16,10 +26,10 @@ $( document ).ready(function() {
         }
 
         if (result['elementsList'][i] === 0) {
-            resultHtml += '<div class="col-1 col-sm-1" id="el-'+ i +'"><span class="guess-cover hide-cover">?</span></div>';
+            resultHtml += '<div class="col-'+ blockSize +' col-sm-'+ blockSize +'" id="el-'+ i +'"><span class="guess-cover hide-cover">?</span></div>';
         }
         else {
-            resultHtml += '<div class="col-1 col-sm-1" id="el-'+ i +'"><span class="guess-cover hide-cover">?</span>'+ result['elementsList'][i] +'</div>';
+            resultHtml += '<div class="col-'+ blockSize +' col-sm-'+ blockSize +'" id="el-'+ i +'"><span class="guess-cover hide-cover">?</span>'+ result['elementsList'][i] +'</div>';
         }
     }
     resultHtml += '</div>';
@@ -27,36 +37,68 @@ $( document ).ready(function() {
     $('.main-data').append(resultHtml)
 
 
-    setInterval(
-        function() {
-            $('.guess-cover').addClass('show-cover');
-            $('.guess-cover').removeClass('hide-cover');
-        }, 3000);
+    // setInterval(
+    setTimeout(
+    function() {
+        $('.guess-cover').addClass('show-cover');
+        $('.guess-cover').removeClass('hide-cover');
+    }, 5000);
 
 
     /////////////////////////////////////
-    let m = 0;
     $('.main-data div div').click(function(event) {
         let elementIndex = $(this).attr('id');
 
-        if (elementIndex === 'el-'+ result['elementsIndexes'][m]) {
-            alert('success!');
-
+        if (elementIndex === 'el-'+ result['elementsIndexes'][currentCursor]) {
             removeCover(elementIndex);
 
-            m++;
+            currentCursor++;
         }
         else {
-            alert('Fail:(');
+            livesCount--;
+
+            updateLiveInfo();
         }
+
+        checkLive()
     });
 });
 
-function removeCover(elementIndex) {
-    $('.'+ elementIndex).find('.guess-cover').removeClass('show-cover');
+$('#hint').click( function(event) {
+    if (hintsCount < 1) {
+        alert("You don't have already hints!");
+    }
+    else {
+        hintsCount--;
+
+        removeCover('el-'+ result['elementsIndexes'][currentCursor]);
+        currentCursor++;
+
+        updateHintInfo();
+    }
+});
+
+function updateHintInfo() {
+    $('#hint span').text(hintsCount);
 }
 
+function updateLiveInfo() {
+    $('#live-info span').text(livesCount);
+}
 
+function removeCover(elementIndex) {
+    $('#'+ elementIndex).find('.guess-cover').removeClass('show-cover');
+    $('#'+ elementIndex).find('.guess-cover').addClass('hide-cover');
+}
+
+function checkLive() {
+    if (livesCount === 0) {
+        alert("Game over!");
+
+        $('.guess-cover').removeClass('show-cover');
+        $('.guess-cover').addClass('hide-cover');
+    }
+}
 
 
 

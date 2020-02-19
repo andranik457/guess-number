@@ -5,8 +5,13 @@ let hintsCount = 2;
 let currentCursor = 0;
 let result = null;
 
+$( document ).ready(function() {
+    // append levels
+    showLevels();
+});
+
 function showLevels() {
-    let maxLevel = 121;
+    let maxLevel = 143;
 
     let levelsList = '<div class="row levels-list">';
     for (let l = 1; l <= maxLevel; l++) {
@@ -14,6 +19,7 @@ function showLevels() {
     }
     levelsList += '</div>';
 
+    $('.main-data').empty();
     $('.levels').empty();
     $('.levels').append(levelsList);
 
@@ -25,24 +31,20 @@ function showLevels() {
     });
 }
 
-
-
-
-
-$( document ).ready(function() {
-    // append levels
-    showLevels();
-});
-
 function startGame() {
     updateLiveInfo();
     updateHintInfo();
 
     let matrixSize = Math.round(Math.sqrt(level) + 0.5);
 
+    // set width for main-data
+    $('.main-data').attr('class', 'main-data col-'+ matrixSize +' col-sm-'+ matrixSize +'');
+
+    // show select level button
+    $('.select-level').css('display', 'block');
+
     // block-size
     let blockSize = Math.round(12 / matrixSize - 0.5);
-
 
     result = getRandomList(level, (matrixSize * matrixSize));
 

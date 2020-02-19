@@ -4,7 +4,7 @@ body {
 }
 .container {
     margin: auto;
-    max-width: 600px;
+    /*max-width: 600px;*/
     /*border: 1px solid #ffffff;*/
 }
 .main-data div div {
@@ -12,6 +12,7 @@ body {
     font-size: 56px;
     border: 1px solid #ffffff;
     min-height: 100px;
+    text-align: center;
 }
 .main-data div div span {
     border: 1px solid #ffffff;
@@ -44,5 +45,7 @@ body {
 }
 #hint {
     cursor: pointer;
-
 }
+/*.game-data {*/
+    /*display: none;*/
+/*}*/

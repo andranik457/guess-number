@@ -1,35 +1,55 @@
 
+const defaultLivesCount = 3;
+
 let level = 9;
-let livesCount = 3;
+let livesCount = defaultLivesCount;
 let hintsCount = 2;
 let currentCursor = 0;
 let result = null;
+let gameStarted = false;
+let findPlaceIndexes = [];
+let totalIndexesCount = 0;
+let timeout = 2000;
+let currentIndex = 0;
+
 
 $( document ).ready(function() {
-    // append levels
     showLevels();
 });
 
-function showLevels() {
-    let maxLevel = 143;
+function hintShowAllNumber() {
+    gameStarted = false;
 
-    let levelsList = '<div class="row levels-list">';
-    for (let l = 1; l <= maxLevel; l++) {
-        levelsList += '<div class="col-2 col-sm-2"><span>'+ l +'</span></div>';
-    }
-    levelsList += '</div>';
+    $('.guess-cover')
+        .removeClass('show-cover')
+        .addClass('hide-cover');
 
-    $('.main-data').empty();
-    $('.levels').empty();
-    $('.levels').append(levelsList);
+    setTimeout( function() {
+        $('.guess-cover')
+            .removeClass('hide-cover')
+            .addClass('show-cover');
 
-    $('.levels .levels-list div').click( function(event) {
-        level = $(this).find('span').text();
-        $('.levels').empty();
+        for (let index in findPlaceIndexes) {
+            removeCover('el-'+ findPlaceIndexes[index]);
+        }
+        gameStarted = true;
 
-        startGame()
-    });
+    }, timeout);
 }
+
+
+
+function resetGameValues() {
+    livesCount = defaultLivesCount;
+    hintsCount = 2;
+    currentCursor = 0;
+    findPlaceIndexes = [];
+    totalIndexesCount = [];
+
+    gameStarted = false;
+}
+
+
 
 function startGame() {
     updateLiveInfo();
@@ -38,7 +58,7 @@ function startGame() {
     let matrixSize = Math.round(Math.sqrt(level) + 0.5);
 
     // set width for main-data
-    $('.main-data').attr('class', 'main-data col-'+ matrixSize +' col-sm-'+ matrixSize +'');
+    $('.main-data').attr('class', 'main-data mx-auto col-'+ matrixSize +' col-sm-'+ matrixSize +'');
 
     // show select level button
     $('.select-level').css('display', 'block');
@@ -60,33 +80,49 @@ function startGame() {
         else {
             resultHtml += '<div class="col-'+ blockSize +' col-sm-'+ blockSize +'" id="el-'+ i +'"><span class="guess-cover hide-cover">?</span>'+ result['elementsList'][i] +'</div>';
         }
+
+        totalIndexesCount = i;
     }
     resultHtml += '</div>';
 
-    $('.main-data').append(resultHtml)
+    $('.main-data').append(resultHtml);
 
 
     // setInterval(
     setTimeout(
         function() {
-            $('.guess-cover').addClass('show-cover');
-            $('.guess-cover').removeClass('hide-cover');
-        }, 5000);
+            $('.guess-cover')
+                .addClass('show-cover')
+                .removeClass('hide-cover');
+
+            gameStarted = true;
+        }, 2000);
 
 
     /////////////////////////////////////
-    $('.main-data div div').click(function(event) {
+    $('.main-data div div').click( function(event) {
+        if (gameStarted === false) {
+            return
+        }
+
         let elementIndex = $(this).attr('id');
+
+        currentIndex = parseInt(elementIndex.split('-').pop());
+        
 
         if (elementIndex === 'el-'+ result['elementsIndexes'][currentCursor]) {
             removeCover(elementIndex);
 
+            findPlaceIndexes.push(result['elementsIndexes'][currentCursor]);
+
             currentCursor++;
         }
         else {
-            livesCount--;
+            if (!findPlaceIndexes.includes(currentIndex)) {
+                livesCount--;
 
-            updateLiveInfo();
+                updateLiveInfo();
+            }
         }
 
         checkLive()
@@ -117,16 +153,20 @@ function updateLiveInfo() {
 }
 
 function removeCover(elementIndex) {
-    $('#'+ elementIndex).find('.guess-cover').removeClass('show-cover');
-    $('#'+ elementIndex).find('.guess-cover').addClass('hide-cover');
+    $('#'+ elementIndex).find('.guess-cover')
+        .removeClass('show-cover')
+        .addClass('hide-cover');
 }
 
 function checkLive() {
     if (livesCount === 0) {
         alert("Game over!");
 
-        $('.guess-cover').removeClass('show-cover');
-        $('.guess-cover').addClass('hide-cover');
+        $('.guess-cover')
+            .removeClass('show-cover')
+            .addClass('hide-cover');
+
+        showLevels();
     }
 }
 
@@ -168,56 +208,31 @@ function getRandomList(elementsCount, maxLength) {
 }
 
 
+/**
+ * Show Levels
+ */
+function showLevels() {
+    resetGameValues();
 
+    let maxLevel = 143;
 
-
-
-
-
-
-
-
-// createMatrix(level);
-
-
-
-function createMatrix(level) {
-    let matrix = '';
-    let matrixSize = Math.round(Math.sqrt(level) + 0.5);
-
-    let elementPlaces = getMatrixElementPlaces(level)
-
-
-
-}
-
-function getMatrixElementPlaces(level) {
-    let elementsPlaces = [];
-
-    getSortedElements(level, elementsPlaces);
-
-    return elementsPlaces;
-}
-
-function getSortedElements(level, elementsPlaces) {
-    let randomIndex = getRandomInt(level);
-
-    if (elementsPlaces.length === level) {
-        return elementsPlaces
+    let levelsList = '<div class="row levels-list">';
+    for (let l = 1; l <= maxLevel; l++) {
+        levelsList += '<div class="col-2 col-sm-2">Level: <span>'+ l +'</span></div>';
     }
-    else {
-        if (elementsPlaces.includes(randomIndex)) {
-            getSortedElements(level, elementsPlaces)
-        }
-        else {
-            elementsPlaces.push(randomIndex)
-        }
-    }
+    levelsList += '</div>';
 
-    getSortedElements(level, elementsPlaces);
+    $('.main-data').empty();
+    $('.levels')
+        .empty()
+        .append(levelsList);
+
+    $('.levels .levels-list div').click( function(event) {
+        level = $(this).find('span').text();
+        $('.levels').empty();
+
+        startGame()
+    });
 }
 
-function getRandomInt(max) {
-    return (Math.floor(Math.random() * Math.floor(max)) + 1);
-}
 

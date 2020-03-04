@@ -49,3 +49,10 @@ body {
 /*.game-data {*/
     /*display: none;*/
 /*}*/
+.footer {
+    background: #6b747d;
+    color: #ffffff !important;
+}
+/*.levels-list div > span {*/
+    /*cursor: pointer;*/
+/*}*/
